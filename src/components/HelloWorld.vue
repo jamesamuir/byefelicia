@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <p class="quote" style="font-style: italic">"Where we're going, we don't need roads."</p>
     <div v-if="timeLeft > 0" class="countdown">
       <h1>Countdown to September 1, 2025</h1>
       <div class="flip-clock">
