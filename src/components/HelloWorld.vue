@@ -24,7 +24,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
 const targetDate = new Date('2025-01-01T00:00:00Z').getTime();
-const imageUrl = ref(new URL('@/assets/byefelicia.jpg', import.meta.url).href);
+const imageUrl = ref('/byefelicia.jpg');
 const timeLeft = ref(targetDate - Date.now());
 const flipped = ref({ Days: false, Hours: false, Minutes: false, Seconds: false });
 const previousTimeUnits = ref({ Days: 0, Hours: 0, Minutes: 0, Seconds: 0 });
@@ -74,7 +74,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Nunito', sans-serif;
-  background: url('@/assets/partay.jpg') no-repeat center center fixed;
+  background: url('../../public/partay.jpg') no-repeat center center fixed;
   background-size: cover;
   color: white;
 }
