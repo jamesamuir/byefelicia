@@ -24,7 +24,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
-const targetDate = new Date('2025-01-01T00:00:00Z').getTime();
+const targetDate = new Date('2025-09-01T00:00:00Z').getTime();
 const imageUrl = ref('/byefelicia.jpg');
 const timeLeft = ref(targetDate - Date.now());
 const previousTimeUnits = ref({ Days: 0, Hours: 0, Minutes: 0, Seconds: 0 });
