@@ -4,9 +4,11 @@
       <h1>Countdown to September 1, 2025</h1>
       <div class="flip-clock">
         <div class="flip-unit" v-for="(value, label) in timeUnits" :key="label">
-          <div class="card">
-            <div class="card-face front">{{ value }}</div>
-            <div class="card-face back">{{ value }}</div>
+          <div class="card-wrapper">
+            <div class="card" :class="{ flip: flipped[label] }" @transitionend="onFlipEnd(label, value)">
+              <div class="front" v-if="!flipped[label]">{{ previousTimeUnits[label] }}</div>
+              <div class="back" v-if="flipped[label]">{{ value }}</div>
+            </div>
           </div>
           <span class="label">{{ label }}</span>
         </div>
@@ -19,11 +21,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
-const targetDate = new Date('2025-09-01T00:00:00Z').getTime();
-const imageUrl = ref('https://example.com/default-image.jpg');
+const targetDate = new Date('2025-01-01T00:00:00Z').getTime();
+const imageUrl = ref(new URL('@/assets/byefelicia.jpg', import.meta.url).href);
 const timeLeft = ref(targetDate - Date.now());
+const flipped = ref({ Days: false, Hours: false, Minutes: false, Seconds: false });
+const previousTimeUnits = ref({ Days: 0, Hours: 0, Minutes: 0, Seconds: 0 });
 
 const updateCountdown = () => {
   timeLeft.value = targetDate - Date.now();
@@ -38,6 +42,19 @@ const timeUnits = computed(() => {
     Seconds: totalSeconds % 60
   };
 });
+
+watch(timeUnits, (newValues) => {
+  for (const label in newValues) {
+    if (newValues[label] !== previousTimeUnits.value[label]) {
+      flipped.value[label] = true;
+    }
+  }
+});
+
+const onFlipEnd = (label, newValue) => {
+  flipped.value[label] = false;
+  previousTimeUnits.value[label] = newValue;
+};
 
 let interval;
 
@@ -73,6 +90,24 @@ body {
   background-color: rgba(0, 0, 0, 0.5);
   padding: 20px;
   border-radius: 15px;
+  width: 100vw;
+}
+
+.image-display {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-display img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 h1 {
@@ -91,6 +126,10 @@ h1 {
   align-items: center;
 }
 
+.card-wrapper {
+  perspective: 1000px;
+}
+
 .card {
   position: relative;
   width: 80px;
@@ -104,43 +143,34 @@ h1 {
   text-align: center;
   line-height: 100px;
   box-shadow: 0px 5px 15px rgba(255, 255, 255, 0.3);
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease-in-out;
 }
 
-.card-face {
+.card.flip {
+  transform: rotateX(180deg);
+}
+
+.card .front, .card .back {
   position: absolute;
   width: 100%;
-  height: 50%;
-  left: 0;
-  overflow: hidden;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.8);
+  backface-visibility: hidden;
 }
 
-.front {
-  top: 0;
+.card .front {
+  transform: rotateX(0deg);
 }
 
-.back {
-  bottom: 0;
+.card .back {
+  transform: rotateX(180deg);
 }
 
 .label {
   font-size: 1rem;
   margin-top: 5px;
-}
-
-@keyframes flip {
-  0% {
-    transform: rotateX(0deg);
-  }
-  100% {
-    transform: rotateX(-180deg);
-  }
-}
-
-.card.flip .front {
-  animation: flip 0.6s ease-in-out;
 }
 </style>
