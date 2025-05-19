@@ -1,31 +1,37 @@
 <template>
-  <div class="container">
-    <p class="quote" style="font-style: italic">"Where we're going, we don't need roads."</p>
-    <div v-if="timeLeft > 0" class="countdown">
-      <h1>Countdown to September 1, 2025</h1>
-      <div class="flip-clock">
-        <div class="flip-unit" v-for="(value, label) in timeUnits" :key="label">
-          <div class="card-wrapper">
-            <transition name="slide">
-              <div class="card" :key="value">
-                <div class="front">{{ value }}</div>
-              </div>
-            </transition>
+  <div class=".body">
+    <div class="container">
+      <div>
+      <p v-if="timeLeft > 0" class="quote" style="font-style: italic">"Where we're going, we don't need roads."</p>
+      <p v-else class="quote" style="font-style: italic">"Don't let the door hit ya where the good lord split ya."</p>
+      </div>
+      <div v-if="timeLeft > 0" class="countdown">
+        <h1>Countdown to August 29, 2025</h1>
+        <div class="flip-clock">
+          <div class="flip-unit" v-for="(value, label) in timeUnits" :key="label">
+            <div class="card-wrapper">
+              <transition name="slide">
+                <div class="card" :key="value">
+                  <div class="front">{{ value }}</div>
+                </div>
+              </transition>
+            </div>
+            <span class="label">{{ label }}</span>
           </div>
-          <span class="label">{{ label }}</span>
         </div>
       </div>
-    </div>
-    <div v-else class="image-display">
-      <img :src="imageUrl" alt="Revealed Image" />
+      <div v-else class="image-display">
+        <img :src="imageUrl" alt="Revealed Image" />
+      </div>
     </div>
   </div>
+
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import {ref, computed, onMounted, onUnmounted, watch, watchEffect} from 'vue';
 
-const targetDate = new Date('2025-09-01T00:00:00Z').getTime();
+const targetDate = new Date('2025-08-29T00:00:00Z').getTime();
 const imageUrl = ref('/byefelicia.jpg');
 const timeLeft = ref(targetDate - Date.now());
 const previousTimeUnits = ref({ Days: 0, Hours: 0, Minutes: 0, Seconds: 0 });
@@ -61,6 +67,19 @@ onMounted(() => {
 onUnmounted(() => {
   clearInterval(interval);
 });
+
+watchEffect(() => {
+  const value = timeLeft.value > 0;
+
+  document.body.style.backgroundImage = value
+      ? "url('/partay.jpg')"
+      : "url('/worldwide.jpg')";
+  document.body.style.backgroundRepeat = 'no-repeat';
+  document.body.style.backgroundPosition = 'center center';
+  document.body.style.backgroundAttachment = 'fixed';
+  document.body.style.backgroundSize = 'cover';
+});
+
 </script>
 
 <style>
@@ -70,7 +89,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Nunito', sans-serif;
-  background: url('../../public/partay.jpg') no-repeat center center fixed;
+
   background-size: cover;
   color: white;
 }
@@ -82,7 +101,7 @@ body {
   justify-content: center;
   height: 100vh;
   text-align: center;
-  backdrop-filter: blur(5px);
+
   background-color: rgba(0, 0, 0, 0.5);
   padding: 20px;
   border-radius: 15px;
