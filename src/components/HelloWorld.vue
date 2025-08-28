@@ -2,9 +2,14 @@
   <div class=".body">
     <div class="container">
       <div>
-      <p v-if="timeLeft > 0" class="quote" style="font-style: italic">"Where we're going, we don't need roads."</p>
-      <p v-else class="quote" style="font-style: italic">"Don't let the door hit ya where the good lord split ya."</p>
+        <p v-if="timeLeft > 0" class="quote" style="font-style: italic">
+          "Where we're going, we don't need roads."
+        </p>
+        <p v-else class="quote" style="font-style: italic">
+          "Don't let the door hit ya where the good lord split ya."
+        </p>
       </div>
+
       <div v-if="timeLeft > 0" class="countdown">
         <h1>Countdown to August 29, 2025</h1>
         <div class="flip-clock">
@@ -20,66 +25,111 @@
           </div>
         </div>
       </div>
+
       <div v-else class="image-display">
         <img :src="imageUrl" alt="Revealed Image" />
       </div>
     </div>
-  </div>
 
+    <!-- 🔥 Fireworks canvas (shows only after flip) -->
+    <div ref="fireworksRef" class="fireworks-overlay" v-show="timeLeft <= 0"></div>
+  </div>
 </template>
 
 <script setup>
-import {ref, computed, onMounted, onUnmounted, watch, watchEffect} from 'vue';
+import { ref, computed, onMounted, onUnmounted, watchEffect, watch} from 'vue'
+import {Fireworks} from 'fireworks-js' // <— library
 
-const targetDate = new Date('2025-08-29T00:00:00Z').getTime();
-const imageUrl = ref('/byefelicia.jpg');
-const timeLeft = ref(targetDate - Date.now());
-const previousTimeUnits = ref({ Days: 0, Hours: 0, Minutes: 0, Seconds: 0 });
+const targetDate = new Date('2025-08-29T12:00:00Z').getTime()
+const imageUrl = ref('/byefelicia.jpg')
+const timeLeft = ref(targetDate - Date.now())
+const previousTimeUnits = ref({Days: 0, Hours: 0, Minutes: 0, Seconds: 0})
 
 const updateCountdown = () => {
-  timeLeft.value = targetDate - Date.now();
-};
+  timeLeft.value = targetDate - Date.now()
+}
 
 const timeUnits = computed(() => {
-  const totalSeconds = Math.floor(timeLeft.value / 1000);
+  const totalSeconds = Math.floor(timeLeft.value / 1000)
   return {
     Days: Math.floor(totalSeconds / (3600 * 24)),
     Hours: Math.floor((totalSeconds % (3600 * 24)) / 3600),
     Minutes: Math.floor((totalSeconds % 3600) / 60),
     Seconds: totalSeconds % 60
-  };
-});
+  }
+})
 
 watch(timeUnits, (newValues) => {
   for (const label in newValues) {
     if (newValues[label] !== previousTimeUnits.value[label]) {
-      previousTimeUnits.value[label] = newValues[label];
+      previousTimeUnits.value[label] = newValues[label]
     }
   }
-});
+})
 
-let interval;
-
+let interval
 onMounted(() => {
-  interval = setInterval(updateCountdown, 1000);
-});
-
+  interval = setInterval(updateCountdown, 1000)
+})
 onUnmounted(() => {
-  clearInterval(interval);
-});
+  clearInterval(interval)
+  stopFireworks()
+})
 
 watchEffect(() => {
-  const value = timeLeft.value > 0;
-
+  const value = timeLeft.value > 0
   document.body.style.backgroundImage = value
       ? "url('/partay.jpg')"
-      : "url('/worldwide.jpg')";
-  document.body.style.backgroundRepeat = 'no-repeat';
-  document.body.style.backgroundPosition = 'center center';
-  document.body.style.backgroundAttachment = 'fixed';
-  document.body.style.backgroundSize = 'cover';
-});
+      : "url('/worldwide.jpg')"
+  document.body.style.backgroundRepeat = 'no-repeat'
+  document.body.style.backgroundPosition = 'center center'
+  document.body.style.backgroundAttachment = 'fixed'
+  document.body.style.backgroundSize = 'cover'
+})
 
+/* ---------- Fireworks logic ---------- */
+const fireworksRef = ref(null)
+let fireworksInstance = null
+let firedOnce = false
+
+const startFireworks = () => {
+  if (fireworksInstance || !fireworksRef.value) return
+
+  fireworksInstance = new Fireworks(fireworksRef.value, {
+    autoresize: true,
+    opacity: 0.6,
+    acceleration: 1.02,
+    friction: 0.97,
+    gravity: 1.5,
+    particles: 90,
+    traceLength: 3,
+    explosion: 6,
+    intensity: 40,
+    flickering: 50,
+    hue: {min: 0, max: 360},
+    rocketsPoint: {min: 50, max: 50}, // center
+  })
+
+  fireworksInstance.start()
+
+  // optional: stop after 15s (remove if you want it to keep going)
+  setTimeout(() => stopFireworks(), 15000)
+}
+
+const stopFireworks = () => {
+  if (fireworksInstance) {
+    fireworksInstance.stop()
+    fireworksInstance = null
+  }
+}
+
+// When the timer flips (<= 0), fire once.
+watch(timeLeft, (ms) => {
+  if (ms <= 0 && !firedOnce) {
+    firedOnce = true
+    startFireworks()
+  }
+})
 </script>
 
 <style>
@@ -89,7 +139,6 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Nunito', sans-serif;
-
   background-size: cover;
   color: white;
 }
@@ -101,7 +150,6 @@ body {
   justify-content: center;
   height: 100vh;
   text-align: center;
-
   background-color: rgba(0, 0, 0, 0.5);
   padding: 20px;
   border-radius: 15px;
@@ -165,5 +213,13 @@ h1 {
 .label {
   font-size: 1rem;
   margin-top: 5px;
+}
+
+/* 🔥 Full-screen, click-through fireworks overlay */
+.fireworks-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none; /* ensure UI remains clickable */
+  z-index: 9999;
 }
 </style>
