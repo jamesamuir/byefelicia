@@ -6,12 +6,12 @@
           "Where we're going, we don't need roads."
         </p>
         <p v-else class="quote" style="font-style: italic">
-          "Don't let the door hit ya where the good lord split ya."
+          "Good Luck and Godspeed."
         </p>
       </div>
 
       <div v-if="timeLeft > 0" class="countdown">
-        <h1>Countdown to August 29, 2025</h1>
+        <h1>Countdown to October 23, 2026</h1>
         <div class="flip-clock">
           <div class="flip-unit" v-for="(value, label) in timeUnits" :key="label">
             <div class="card-wrapper">
@@ -27,7 +27,7 @@
       </div>
 
       <div v-else class="image-display">
-        <img :src="imageUrl" alt="Revealed Image" />
+        <!-- <img :src="imageUrl" alt="Revealed Image" /> -->
       </div>
     </div>
 
@@ -40,8 +40,8 @@
 import { ref, computed, onMounted, onUnmounted, watchEffect, watch} from 'vue'
 import {Fireworks} from 'fireworks-js' // <— library
 
-const targetDate = new Date('2025-08-29T12:00:00Z').getTime()
-const imageUrl = ref('/byefelicia.jpg')
+const targetDate = new Date('2026-10-23T12:00:00Z').getTime()
+// const imageUrl = ref('')
 const timeLeft = ref(targetDate - Date.now())
 const previousTimeUnits = ref({Days: 0, Hours: 0, Minutes: 0, Seconds: 0})
 
